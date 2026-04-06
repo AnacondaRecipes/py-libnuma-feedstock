@@ -1,5 +1,5 @@
-{% set name = "<PLEASE ADD PKG NAME>" %}
-{% set version = "<PLEASE ADD PKG VERSION>" %}
+{% set name = "py-libnuma" %}
+{% set version = "1.2" %}
 
 package:
   name: {{ name|lower }}
@@ -7,39 +7,46 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: <sha256>
+  sha256: e9d67ad04f274015e9acac497d642ce92f8a96d1d4e7be24e39124b24320b95a 
 
 build:
+  skip: true # [py<310 or (not linux)]
   number: 0
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
-  skip: True  # [py<38]
+
 
 requirements:
+  build:
+    
   host:
     - python
+    - setuptools
     - pip
+    - libnuma {{ libnuma }}
   run:
     - python
+    - libnuma {{ libnuma }}
+
 
 test:
   imports:
-    - {{ name.replace('-', '.') }}
+    - numa
   requires:
     - pip
   commands:
     - pip check
 
 about:
-  home: <PLEASE ADD HOME URL>
-  summary: <PLEASE ADD SUMMARY>
+  home: https://github.com/eedalong/pynuma
+  summary: Python3 interface to libnuma on Linux
   description: |
-    <PLEASE ADD DESCRIPTION>
-  license: <PLEASE ADD LICENSE>
-  license_family: <PLEASE ADD LICENSE_FAMILY>
-  license_file: <PLEASE_ADD_LICENSE_FILE>
-  dev_url: <PLEASE ADD DEV URL>
-  doc_url: <PLEASE ADD DOC URL>
+    py-libnuma is python3 interface to numa Linux library so that you can 
+    set task affinity and memory affinity in python level for your process 
+    which can help you to improve your code's performence.
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  dev_url: https://github.com/eedalong/pynuma
+  doc_url: https://github.com/eedalong/pynuma
+ 
 
-extra:
-  recipe-maintainers:
-    - Jrice1317
