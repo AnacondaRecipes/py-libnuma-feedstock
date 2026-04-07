@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/py-libnuma-{{ version }}.tar.gz
   sha256: e9d67ad04f274015e9acac497d642ce92f8a96d1d4e7be24e39124b24320b95a 
 
 build:
@@ -29,11 +29,19 @@ requirements:
 
 
 test:
+  source_files:
+    - tests
   imports:
     - numa
   requires:
     - pip
   commands:
+    # Skipping tests: test_bind, test_preferred_nodes, test_local_alloc, 
+    # test_membind_nodes, test_numa_available. They are failing due to:
+    # "set_mempolicy: Operation not permitted". This looks like it
+    # is likely a configuration problem due to virtualization
+    # The keywords below select the other 12 tests.
+    - python -m unittest -v tests/test.py -k get -k cpu -k run -k interleave -k info -k distance
     - pip check
 
 about:
