@@ -20,10 +20,9 @@ requirements:
     - python
     - setuptools
     - pip
-    - libnuma {{ libnuma }} 
   run:
     - python
-    - libnuma {{ libnuma }} 
+    - libnuma 
 
 # Skipping tests: test_bind, test_preferred_nodes, test_local_alloc, 
 # test_membind_nodes, test_numa_available. They are failing due to:
@@ -61,5 +60,7 @@ about:
   doc_url: https://github.com/eedalong/pynuma
  
 extra:
+  skip-lints:
+    - cbc_dep_in_run_missing_from_host
   recipe-maintainers:
     - howea
