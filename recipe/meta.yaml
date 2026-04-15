@@ -1,45 +1,66 @@
-{% set name = "<PLEASE ADD PKG NAME>" %}
-{% set version = "<PLEASE ADD PKG VERSION>" %}
+{% set name = "py-libnuma" %}
+{% set version = "1.2" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: <sha256>
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/py-libnuma-{{ version }}.tar.gz
+  sha256: e9d67ad04f274015e9acac497d642ce92f8a96d1d4e7be24e39124b24320b95a 
 
 build:
+  skip: true # [not linux]
   number: 0
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
-  skip: True  # [py<38]
+
 
 requirements:
   host:
     - python
+    - setuptools
     - pip
   run:
     - python
+    - libnuma 
+
+# Skipping tests: test_bind, test_preferred_nodes, test_local_alloc, 
+# test_membind_nodes, test_numa_available. They are failing due to:
+# "set_mempolicy: Operation not permitted". This looks like it
+# is likely a configuration problem due to virtualization
+{% set tests_to_skip = "--deselect tests/test.py::TestSchedule::test_bind" %} 
+{% set tests_to_skip = tests_to_skip + " --deselect tests/test.py::TestSchedule::test_preferred_nodes" %}
+{% set tests_to_skip = tests_to_skip + " --deselect tests/test.py::TestInfo::test_numa_available" %}
+{% set tests_to_skip = tests_to_skip + " --deselect tests/test.py::TestMemory::test_local_alloc" %}
+{% set tests_to_skip = tests_to_skip + " --deselect tests/test.py::TestMemory::test_membind_nodes" %}
 
 test:
+  source_files:
+    - tests
   imports:
-    - {{ name.replace('-', '.') }}
+    - numa
   requires:
     - pip
+    - pytest
   commands:
     - pip check
+    - pytest tests/test.py {{ tests_to_skip }}
 
 about:
-  home: <PLEASE ADD HOME URL>
-  summary: <PLEASE ADD SUMMARY>
+  home: https://github.com/eedalong/pynuma
+  summary: Python3 interface to libnuma on Linux
   description: |
-    <PLEASE ADD DESCRIPTION>
-  license: <PLEASE ADD LICENSE>
-  license_family: <PLEASE ADD LICENSE_FAMILY>
-  license_file: <PLEASE_ADD_LICENSE_FILE>
-  dev_url: <PLEASE ADD DEV URL>
-  doc_url: <PLEASE ADD DOC URL>
-
+    py-libnuma is python3 interface to numa Linux library so that you can 
+    set task affinity and memory affinity in python level for your process 
+    which can help you to improve your code's performence.
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  dev_url: https://github.com/eedalong/pynuma
+  doc_url: https://github.com/eedalong/pynuma
+ 
 extra:
+  skip-lints:
+    - cbc_dep_in_run_missing_from_host
   recipe-maintainers:
-    - Jrice1317
+    - howea
